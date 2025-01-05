@@ -73,6 +73,7 @@ async function run() {
 
     // DataBase Related Collection 
     const SignUpUserCollection = client.db('Samadhan_Group').collection('Registration_Users')
+    const BlogCollection = client.db('Samadhan_Group').collection('Blog')
 
 
 
@@ -170,6 +171,48 @@ async function run() {
       const result = await SignUpUserCollection.find().toArray()
       res.send(result)
     });
+
+
+
+
+
+
+    // Blog Publish Here ... 
+
+app.post('/blog', async (req, res) => {
+  const { title, description, image, tags, createDate,
+    createTime } = req.body;
+
+  // Basic validation
+  if (!title || !description || !image || !tags ) {
+    return res.status(400).json({ success: false, message: 'All fields are required' });
+  }
+
+  try {
+    // Insert blog post into the database
+    const newBlog = { title, description, image, tags,createDate,
+      createTime };
+    const result = await BlogCollection.insertOne(newBlog);
+
+    if (result.acknowledged) {
+      return res.status(200).json({ success: true, message: 'Blog created successfully' });
+    } else {
+      return res.status(500).json({ success: false, message: 'Error creating blog' });
+    }
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Get all blogs
+app.get('/blog', async (req, res) => {
+  try {
+    const blogs = await BlogCollection.find().toArray();
+    res.status(200).json(blogs);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
 
 
 
