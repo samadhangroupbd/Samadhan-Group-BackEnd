@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId, Admin } = require('mongodb');
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
@@ -122,7 +122,7 @@ async function run() {
       const { fullName, email, phoneNumber, nationality, role, image, password, fatherName,
         motherName,
         nidNumber,
-        gender, dateOfBirth, bloodGroup, referenceId, country, division, district, thana, postOffice, village, general, ward, nidBirthImage, member, payment, transactionId, paymentPhoto,profileId,createDate,createTime } = req.body;
+        gender, dateOfBirth, bloodGroup, referenceId, country, division, district, thana, postOffice, village, general, ward, nidBirthImage, member, payment, transactionId, paymentPhoto, profileId, createDate, createTime } = req.body;
 
       try {
         // Check if the user already exists by email
@@ -149,7 +149,7 @@ async function run() {
           fatherName,
           motherName,
           nidNumber,
-          gender, dateOfBirth, bloodGroup, referenceId, country, division, district, thana, postOffice, village, general, ward, nidBirthImage, member, payment, transactionId, paymentPhoto,profileId,createDate,createTime
+          gender, dateOfBirth, bloodGroup, referenceId, country, division, district, thana, postOffice, village, general, ward, nidBirthImage, member, payment, transactionId, paymentPhoto, profileId, createDate, createTime
         };
 
         const result = await SignUpUserCollection.insertOne(newUser);
@@ -177,42 +177,116 @@ async function run() {
 
 
 
+    app.get('/user-details/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await SignUpUserCollection.findOne(query);
+      res.send(result);
+    });
+
+
+
+    // PUT: Update flight details
+    app.put('/User-Admin/:id', async (req, res) => {
+      const { id } = req.params;
+      const updatedData = req.body;  // Get the updated flight data from the request body
+
+      try {
+        // Validate the ID (MongoDB ObjectId)
+        if (!ObjectId.isValid(id)) {
+          return res.status(400).send({ message: 'Invalid flight ID' });
+        }
+
+        // Update the flight document by ID
+        const result = await SignUpUserCollection.updateOne(
+          { _id: new ObjectId(id) }, // Find the flight by ID
+          { $set: updatedData } // Update the flight with new data
+        );
+
+        if (result.matchedCount === 0) {
+          return res.status(404).send({ message: 'Flight not found' });
+        }
+
+        res.status(200).send({ message: 'Flight updated successfully' });
+
+      } catch (error) {
+        console.error('Error updating flight:', error);
+        res.status(500).send({ message: 'An error occurred while updating the flight.' });
+      }
+    });
+
+
+
+    // Backend: Delete Flight (DELETE)
+    app.delete('/UserAdmin-delete/:id', async (req, res) => {
+      try {
+        const { id } = req.params; // Extract the Flight ID from URL parameters
+
+        // Delete the Flight from the database
+        const result = await SignUpUserCollection.deleteOne({ _id: new ObjectId(id) });
+
+        if (result.deletedCount > 0) {
+          res.status(200).send({ message: 'Flight deleted successfully' });
+        } else {
+          res.status(404).send({ message: 'Flight not found' });
+        }
+      } catch (error) {
+        res.status(500).send({ message: 'An error occurred while deleting the Flight.', error });
+      }
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // Blog Publish Here ... 
 
-app.post('/blog', async (req, res) => {
-  const { title, description, image, tags, createDate,
-    createTime } = req.body;
+    app.post('/blog', async (req, res) => {
+      const { title, description, image, tags, createDate,
+        createTime } = req.body;
 
-  // Basic validation
-  if (!title || !description || !image || !tags ) {
-    return res.status(400).json({ success: false, message: 'All fields are required' });
-  }
+      // Basic validation
+      if (!title || !description || !image || !tags) {
+        return res.status(400).json({ success: false, message: 'All fields are required' });
+      }
 
-  try {
-    // Insert blog post into the database
-    const newBlog = { title, description, image, tags,createDate,
-      createTime };
-    const result = await BlogCollection.insertOne(newBlog);
+      try {
+        // Insert blog post into the database
+        const newBlog = {
+          title, description, image, tags, createDate,
+          createTime
+        };
+        const result = await BlogCollection.insertOne(newBlog);
 
-    if (result.acknowledged) {
-      return res.status(200).json({ success: true, message: 'Blog created successfully' });
-    } else {
-      return res.status(500).json({ success: false, message: 'Error creating blog' });
-    }
-  } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
-  }
-});
+        if (result.acknowledged) {
+          return res.status(200).json({ success: true, message: 'Blog created successfully' });
+        } else {
+          return res.status(500).json({ success: false, message: 'Error creating blog' });
+        }
+      } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+      }
+    });
 
-// Get all blogs
-app.get('/blog', async (req, res) => {
-  try {
-    const blogs = await BlogCollection.find().toArray();
-    res.status(200).json(blogs);
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
+    // Get all blogs
+    app.get('/blog', async (req, res) => {
+      try {
+        const blogs = await BlogCollection.find().toArray();
+        res.status(200).json(blogs);
+      } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+      }
+    });
 
 
 
