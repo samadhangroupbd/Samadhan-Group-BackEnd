@@ -122,7 +122,7 @@ async function run() {
       const { fullName, email, phoneNumber, nationality, role, image, password, fatherName,
         motherName,
         nidNumber,
-        gender, dateOfBirth, bloodGroup, referenceId, country, division, district, thana, postOffice, village, general, ward, nidBirthImage, member, payment, transactionId, paymentPhoto, profileId, createDate, createTime } = req.body;
+        gender, dateOfBirth, bloodGroup, referenceId, country, division, district, thana, postOffice, village, general, ward, nidBirthImage, member, payment, transactionId, paymentPhoto, profileId,aproval, createDate, createTime } = req.body;
 
       try {
         // Check if the user already exists by email
@@ -149,7 +149,7 @@ async function run() {
           fatherName,
           motherName,
           nidNumber,
-          gender, dateOfBirth, bloodGroup, referenceId, country, division, district, thana, postOffice, village, general, ward, nidBirthImage, member, payment, transactionId, paymentPhoto, profileId, createDate, createTime
+          gender, dateOfBirth, bloodGroup, referenceId, country, division, district, thana, postOffice, village, general, ward, nidBirthImage, member, payment, transactionId, paymentPhoto, profileId,aproval, createDate, createTime
         };
 
         const result = await SignUpUserCollection.insertOne(newUser);
@@ -186,7 +186,7 @@ async function run() {
 
 
 
-    // PUT: Update flight details
+    // PUT: Admin update details
     app.put('/User-Admin/:id', async (req, res) => {
       const { id } = req.params;
       const updatedData = req.body;  // Get the updated flight data from the request body
@@ -197,7 +197,7 @@ async function run() {
           return res.status(400).send({ message: 'Invalid flight ID' });
         }
 
-        // Update the flight document by ID
+      
         const result = await SignUpUserCollection.updateOne(
           { _id: new ObjectId(id) }, // Find the flight by ID
           { $set: updatedData } // Update the flight with new data
@@ -239,6 +239,63 @@ async function run() {
 
 
 
+// Backend Route (PUT Request to Approve Admin)
+app.put('/approve-admin/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Validate the ID (MongoDB ObjectId)
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).send({ message: 'Invalid admin ID' });
+    }
+
+    // Find the admin by ID and update the 'aproval' status
+    const result = await SignUpUserCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { aproval: "approved" } } // Set 'aproval' field to "approved"
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).send({ message: 'Admin not found' });
+    }
+
+    res.status(200).send({ message: 'Admin approved successfully' });
+
+  } catch (error) {
+    console.error('Error approving admin:', error);
+    res.status(500).send({ message: 'An error occurred while approving the admin.' });
+  }
+});
+
+
+
+// Backend Route (PUT Request to Approve member)
+app.put('/approve-member/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Validate the ID (MongoDB ObjectId)
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).send({ message: 'Invalid admin ID' });
+    }
+
+    // Find the admin by ID and update the 'aproval' status
+    const result = await SignUpUserCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { aproval: "approved" } } // Set 'aproval' field to "approved"
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).send({ message: 'Admin not found' });
+    }
+
+    res.status(200).send({ message: 'Admin approved successfully' });
+
+  } catch (error) {
+    console.error('Error approving admin:', error);
+    res.status(500).send({ message: 'An error occurred while approving the admin.' });
+  }
+});
 
 
 
