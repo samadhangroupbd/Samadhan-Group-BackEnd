@@ -74,6 +74,7 @@ async function run() {
     // DataBase Related Collection 
     const SignUpUserCollection = client.db('Samadhan_Group').collection('Registration_Users')
     const BlogCollection = client.db('Samadhan_Group').collection('Blog')
+    const ProductCollection = client.db('Samadhan_Group').collection('Product')
 
 
 
@@ -122,7 +123,7 @@ async function run() {
       const { fullName, email, phoneNumber, nationality, role, image, password, fatherName,
         motherName,
         nidNumber,
-        gender, dateOfBirth, bloodGroup, referenceId, country, division, district, thana, postOffice, village, general, ward, nidBirthImage, member, payment, transactionId, paymentPhoto, profileId,aproval, createDate, createTime } = req.body;
+        gender, dateOfBirth, bloodGroup, referenceId, country, division, district, thana, postOffice, village, general, ward, nidBirthImage, member, payment, transactionId, paymentPhoto, profileId, aproval, createDate, createTime, endDate, ...membershipData } = req.body;
 
       try {
         // Check if the user already exists by email
@@ -149,7 +150,7 @@ async function run() {
           fatherName,
           motherName,
           nidNumber,
-          gender, dateOfBirth, bloodGroup, referenceId, country, division, district, thana, postOffice, village, general, ward, nidBirthImage, member, payment, transactionId, paymentPhoto, profileId,aproval, createDate, createTime
+          gender, dateOfBirth, bloodGroup, referenceId, country, division, district, thana, postOffice, village, general, ward, nidBirthImage, member, payment, transactionId, paymentPhoto, profileId, aproval, createDate, createTime, endDate, ...membershipData, // Include membership type and cost in form data
         };
 
         const result = await SignUpUserCollection.insertOne(newUser);
@@ -197,7 +198,7 @@ async function run() {
           return res.status(400).send({ message: 'Invalid flight ID' });
         }
 
-      
+
         const result = await SignUpUserCollection.updateOne(
           { _id: new ObjectId(id) }, // Find the flight by ID
           { $set: updatedData } // Update the flight with new data
@@ -239,63 +240,63 @@ async function run() {
 
 
 
-// Backend Route (PUT Request to Approve Admin)
-app.put('/approve-admin/:id', async (req, res) => {
-  const { id } = req.params;
+    // Backend Route (PUT Request to Approve Admin)
+    app.put('/approve-admin/:id', async (req, res) => {
+      const { id } = req.params;
 
-  try {
-    // Validate the ID (MongoDB ObjectId)
-    if (!ObjectId.isValid(id)) {
-      return res.status(400).send({ message: 'Invalid admin ID' });
-    }
+      try {
+        // Validate the ID (MongoDB ObjectId)
+        if (!ObjectId.isValid(id)) {
+          return res.status(400).send({ message: 'Invalid admin ID' });
+        }
 
-    // Find the admin by ID and update the 'aproval' status
-    const result = await SignUpUserCollection.updateOne(
-      { _id: new ObjectId(id) },
-      { $set: { aproval: "approved" } } // Set 'aproval' field to "approved"
-    );
+        // Find the admin by ID and update the 'aproval' status
+        const result = await SignUpUserCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: { aproval: "approved" } } // Set 'aproval' field to "approved"
+        );
 
-    if (result.matchedCount === 0) {
-      return res.status(404).send({ message: 'Admin not found' });
-    }
+        if (result.matchedCount === 0) {
+          return res.status(404).send({ message: 'Admin not found' });
+        }
 
-    res.status(200).send({ message: 'Admin approved successfully' });
+        res.status(200).send({ message: 'Admin approved successfully' });
 
-  } catch (error) {
-    console.error('Error approving admin:', error);
-    res.status(500).send({ message: 'An error occurred while approving the admin.' });
-  }
-});
+      } catch (error) {
+        console.error('Error approving admin:', error);
+        res.status(500).send({ message: 'An error occurred while approving the admin.' });
+      }
+    });
 
 
 
-// Backend Route (PUT Request to Approve member)
-app.put('/approve-member/:id', async (req, res) => {
-  const { id } = req.params;
+    // Backend Route (PUT Request to Approve member)
+    app.put('/approve-member/:id', async (req, res) => {
+      const { id } = req.params;
 
-  try {
-    // Validate the ID (MongoDB ObjectId)
-    if (!ObjectId.isValid(id)) {
-      return res.status(400).send({ message: 'Invalid admin ID' });
-    }
+      try {
+        // Validate the ID (MongoDB ObjectId)
+        if (!ObjectId.isValid(id)) {
+          return res.status(400).send({ message: 'Invalid admin ID' });
+        }
 
-    // Find the admin by ID and update the 'aproval' status
-    const result = await SignUpUserCollection.updateOne(
-      { _id: new ObjectId(id) },
-      { $set: { aproval: "approved" } } // Set 'aproval' field to "approved"
-    );
+        // Find the admin by ID and update the 'aproval' status
+        const result = await SignUpUserCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: { aproval: "approved" } } // Set 'aproval' field to "approved"
+        );
 
-    if (result.matchedCount === 0) {
-      return res.status(404).send({ message: 'Admin not found' });
-    }
+        if (result.matchedCount === 0) {
+          return res.status(404).send({ message: 'Admin not found' });
+        }
 
-    res.status(200).send({ message: 'Admin approved successfully' });
+        res.status(200).send({ message: 'Admin approved successfully' });
 
-  } catch (error) {
-    console.error('Error approving admin:', error);
-    res.status(500).send({ message: 'An error occurred while approving the admin.' });
-  }
-});
+      } catch (error) {
+        console.error('Error approving admin:', error);
+        res.status(500).send({ message: 'An error occurred while approving the admin.' });
+      }
+    });
 
 
 
@@ -344,6 +345,116 @@ app.put('/approve-member/:id', async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
       }
     });
+
+
+
+
+
+
+    // Product Collection Here
+
+    // Product Publish Here ... 
+
+    app.post('/product', async (req, res) => {
+      const { productName, description, image, price, category, createDate,
+        createTime } = req.body;
+
+      // Basic validation
+      if (!productName || !description || !image || !price || !category) {
+        return res.status(400).json({ success: false, message: 'All fields are required' });
+      }
+
+      try {
+        // Insert product post into the database
+        const newProduct = {
+          productName, description, image, price, category, createDate,
+          createTime
+        };
+        const result = await ProductCollection.insertOne(newProduct);
+
+        if (result.acknowledged) {
+          return res.status(200).json({ success: true, message: 'product created successfully' });
+        } else {
+          return res.status(500).json({ success: false, message: 'Error creating product' });
+        }
+      } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+      }
+    });
+
+
+
+    // Get all products
+    app.get('/product', async (req, res) => {
+      try {
+        const blogs = await ProductCollection.find().toArray();
+        res.status(200).json(blogs);
+      } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+      }
+    });
+
+
+
+    // Production details 
+    app.get('/product/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await ProductCollection.findOne(query);
+      res.send(result);
+    });
+
+
+
+    // Backend: Delete product (DELETE)
+    app.delete('/product-delete/:id', async (req, res) => {
+      try {
+        const { id } = req.params; // Extract the product ID from URL parameters
+
+        // Delete the product from the database
+        const result = await ProductCollection.deleteOne({ _id: new ObjectId(id) });
+
+        if (result.deletedCount > 0) {
+          res.status(200).send({ message: 'product deleted successfully' });
+        } else {
+          res.status(404).send({ message: 'product not found' });
+        }
+      } catch (error) {
+        res.status(500).send({ message: 'An error occurred while deleting the product.', error });
+      }
+    });
+
+
+
+     // PUT: product update details
+     app.put('/product-update/:id', async (req, res) => {
+      const { id } = req.params;
+      const updatedData = req.body;  // Get the updated product data from the request body
+
+      try {
+        // Validate the ID (MongoDB ObjectId)
+        if (!ObjectId.isValid(id)) {
+          return res.status(400).send({ message: 'Invalid product ID' });
+        }
+
+
+        const result = await ProductCollection.updateOne(
+          { _id: new ObjectId(id) }, // Find the product by ID
+          { $set: updatedData } // Update the product with new data
+        );
+
+        if (result.matchedCount === 0) {
+          return res.status(404).send({ message: 'product not found' });
+        }
+
+        res.status(200).send({ message: 'product updated successfully' });
+
+      } catch (error) {
+        console.error('Error updating product:', error);
+        res.status(500).send({ message: 'An error occurred while updating the product.' });
+      }
+    });
+
 
 
 
