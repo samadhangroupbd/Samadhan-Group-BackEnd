@@ -426,8 +426,8 @@ async function run() {
 
 
 
-     // PUT: product update details
-     app.put('/product-update/:id', async (req, res) => {
+    // PUT: product update details
+    app.put('/product-update/:id', async (req, res) => {
       const { id } = req.params;
       const updatedData = req.body;  // Get the updated product data from the request body
 
@@ -452,6 +452,38 @@ async function run() {
       } catch (error) {
         console.error('Error updating product:', error);
         res.status(500).send({ message: 'An error occurred while updating the product.' });
+      }
+    });
+
+
+
+
+    // approve renew subscription 
+
+    app.put('/approve-renew-subscription/:id', async (req, res) => {
+      const { id } = req.params;
+
+      try {
+        // Validate the ID (MongoDB ObjectId)
+        if (!ObjectId.isValid(id)) {
+          return res.status(400).send({ message: 'Invalid member ID' });
+        }
+
+        // Find the admin by ID and update the 'aproval' status
+        const result = await SignUpUserCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: { paymentApprove: "yes" } } // Set 'aproval' field to "approved"
+        );
+
+        if (result.matchedCount === 0) {
+          return res.status(404).send({ message: 'Subscription not found....' });
+        }
+
+        res.status(200).send({ message: 'Subscription approved successfully' });
+
+      } catch (error) {
+        console.error('Error approving admin:', error);
+        res.status(500).send({ message: 'An error occurred while approving the Subscription.' });
       }
     });
 
