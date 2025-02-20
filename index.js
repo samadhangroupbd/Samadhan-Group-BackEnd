@@ -123,7 +123,7 @@ async function run() {
       const { fullName, email, phoneNumber, nationality, role, image, password, fatherName,
         motherName,
         nidNumber,
-        gender, dateOfBirth, bloodGroup, referenceId, country, division, district, thana, postOffice, village, general, ward, nidBirthImage, member, payment, transactionId, paymentPhoto, profileId, aproval, createDate, createTime, endDate, ...membershipData } = req.body;
+        gender, dateOfBirth, bloodGroup, referenceId, country, division, district, thana, postOffice, village, general, ward, nidBirthImage,cityCorporationWard,paurasabhaWard, member, payment, transactionId, paymentPhoto, profileId, aproval, createDate, createTime, endDate,organizerFee,registrationFee,idCardFee,serviceFee,totalAmount, ...membershipData } = req.body;
 
       try {
         // Check if the user already exists by email
@@ -150,7 +150,7 @@ async function run() {
           fatherName,
           motherName,
           nidNumber,
-          gender, dateOfBirth, bloodGroup, referenceId, country, division, district, thana, postOffice, village, general, ward, nidBirthImage, member, payment, transactionId, paymentPhoto, profileId, aproval, createDate, createTime, endDate, ...membershipData, // Include membership type and cost in form data
+          gender, dateOfBirth, bloodGroup, referenceId, country, division, district, thana, postOffice, village, general, ward,cityCorporationWard,paurasabhaWard, nidBirthImage, member, payment, transactionId, paymentPhoto, profileId, aproval, createDate, createTime, endDate,organizerFee,registrationFee,idCardFee,serviceFee,totalAmount, ...membershipData, // Include membership type and cost in form data
         };
 
         const result = await SignUpUserCollection.insertOne(newUser);
@@ -356,18 +356,18 @@ async function run() {
     // Product Publish Here ... 
 
     app.post('/product', async (req, res) => {
-      const { productName, description, image, price, category, createDate,
+      const { productName, description, image, price, defaultPrice,category, createDate,
         createTime } = req.body;
 
       // Basic validation
-      if (!productName || !description || !image || !price || !category) {
+      if (!productName || !description || !image ||!defaultPrice|| !price || !category) {
         return res.status(400).json({ success: false, message: 'All fields are required' });
       }
 
       try {
         // Insert product post into the database
         const newProduct = {
-          productName, description, image, price, category, createDate,
+          productName, description, image,defaultPrice, price, category, createDate,
           createTime
         };
         const result = await ProductCollection.insertOne(newProduct);
