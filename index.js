@@ -123,7 +123,7 @@ async function run() {
       const { fullName, email, phoneNumber, nationality, role, image, password, fatherName,
         motherName,
         nidNumber,
-        gender, dateOfBirth, bloodGroup, referenceId, country, division, district, thana, postOffice, village, general, ward, nidBirthImage,cityCorporationWard,paurasabhaWard, member, payment, transactionId, paymentPhoto, profileId, aproval, createDate, createTime, endDate,organizerFee,registrationFee,idCardFee,serviceFee,totalAmount, ...membershipData } = req.body;
+        gender, dateOfBirth, bloodGroup, referenceId,salary, country, division, district, thana, postOffice, village, general, ward, nidBirthImage,cityCorporationWard,paurasabhaWard, member, payment, transactionId, paymentPhoto, profileId, aproval, createDate, createTime, endDate,organizerFee,registrationFee,idCardFee,serviceFee,totalAmount, ...membershipData } = req.body;
 
       try {
         // Check if the user already exists by email
@@ -150,7 +150,7 @@ async function run() {
           fatherName,
           motherName,
           nidNumber,
-          gender, dateOfBirth, bloodGroup, referenceId, country, division, district, thana, postOffice, village, general, ward,cityCorporationWard,paurasabhaWard, nidBirthImage, member, payment, transactionId, paymentPhoto, profileId, aproval, createDate, createTime, endDate,organizerFee,registrationFee,idCardFee,serviceFee,totalAmount, ...membershipData, // Include membership type and cost in form data
+          gender, dateOfBirth, bloodGroup, referenceId, country, division, district, thana, postOffice, village, general, ward,cityCorporationWard,paurasabhaWard, nidBirthImage, member, payment, transactionId, paymentPhoto,salary, profileId, aproval, createDate, createTime, endDate,organizerFee,registrationFee,idCardFee,serviceFee,totalAmount, ...membershipData, // Include membership type and cost in form data
         };
 
         const result = await SignUpUserCollection.insertOne(newUser);
