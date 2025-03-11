@@ -157,6 +157,7 @@ async function run() {
 
         if (result.acknowledged) {
           // Send a success response
+          
           res.status(200).json({ success: true, message: 'User created successfully' });
         } else {
           res.status(500).json({ success: false, message: 'Error creating user' });
@@ -345,6 +346,73 @@ async function run() {
         res.status(500).json({ success: false, message: error.message });
       }
     });
+
+
+     // blog details 
+     app.get('/blog/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await BlogCollection.findOne(query);
+      res.send(result);
+    });
+
+
+
+    // Backend: Delete blog (DELETE)
+    app.delete('/blog-delete/:id', async (req, res) => {
+      try {
+        const { id } = req.params; // Extract the blog ID from URL parameters
+
+        // Delete the blog from the database
+        const result = await BlogCollection.deleteOne({ _id: new ObjectId(id) });
+
+        if (result.deletedCount > 0) {
+          res.status(200).send({ message: 'blog deleted successfully' });
+        } else {
+          res.status(404).send({ message: 'blog not found' });
+        }
+      } catch (error) {
+        res.status(500).send({ message: 'An error occurred while deleting the blog.', error });
+      }
+    });
+
+
+
+    // PUT: blog update details
+    app.put('/blog-update/:id', async (req, res) => {
+      const { id } = req.params;
+      const updatedData = req.body;  // Get the updated blog data from the request body
+
+      try {
+        // Validate the ID (MongoDB ObjectId)
+        if (!ObjectId.isValid(id)) {
+          return res.status(400).send({ message: 'Invalid blog ID' });
+        }
+
+
+        const result = await BlogCollection.updateOne(
+          { _id: new ObjectId(id) }, // Find the blog by ID
+          { $set: updatedData } // Update the blog with new data
+        );
+
+        if (result.matchedCount === 0) {
+          return res.status(404).send({ message: 'blog not found' });
+        }
+
+        res.status(200).send({ message: 'blog updated successfully' });
+
+      } catch (error) {
+        console.error('Error updating blog:', error);
+        res.status(500).send({ message: 'An error occurred while updating the blog.' });
+      }
+    });
+
+
+
+
+
+
+
 
 
 
